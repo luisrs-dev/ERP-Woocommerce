@@ -1,0 +1,12 @@
+<mat-nav-list>
+    <a csvLink [data]="data"  mat-list-item >
+      <span matListItemTitle> <mat-icon>download</mat-icon>  Excel</span>
+      <span matLine>Exportar los datos a un archivo Excel</span>
+    </a>
+  
+    <a mat-list-item (click)="export2PDF()">
+      <span matListItemTitle><mat-icon>download</mat-icon>PDF</span>
+      <span matLine>Exportar los datos a un archivo PDF</span>
+    </a>  
+  </mat-nav-list>
+  

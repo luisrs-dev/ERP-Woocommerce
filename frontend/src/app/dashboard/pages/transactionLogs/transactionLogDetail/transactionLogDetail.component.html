@@ -1,0 +1,73 @@
+<div class="mx-auto my-auto">
+    <h2 mat-dialog-title>Transacción: {{ data.transaction.transaccion }}</h2>
+    <mat-dialog-content>
+      <div class="grid">
+        <div class="col-12 md:col-5">
+          <table class="styled-table">
+            <tr>
+              <th>Nombre</th>
+              <th>Valor</th>
+            </tr>
+            <tr>
+              <td>Banco</td>
+              <td>{{ data.transaction.banco }}</td>
+            </tr>
+            <tr>
+              <td>Tipo</td>
+              <td>{{ data.transaction.tipo }}</td>
+            </tr>
+            <tr>
+              <td>Módulo</td>
+              <td>{{ data.transaction.modulo }}</td>
+            </tr>
+            <tr>
+              <td>Mensaje</td>
+              <td>{{ data.transaction.mensaje || "No registra mensaje" }}</td>
+            </tr>
+            <tr>
+              <td>Contenido</td>
+              <td>{{ data.transaction.content }}</td>
+            </tr>
+            <tr>
+              <td>Fecha</td>
+              <td>{{ data.transaction.fecha_alta }}</td>
+            </tr>
+            <tr>
+              <td>URL Retorno</td>
+              <td>{{ data.transaction.url_retorno }}</td>
+            </tr>
+            <tr>
+              <td>Monto</td>
+              <td>{{ data.transaction.monto | clpCurrency}}</td>
+            </tr>
+            <tr>
+              <td>Moneda</td>
+              <td>{{ data.transaction.moneda }}</td>
+            </tr>
+            <tr>
+              <td>Nro. Transacción</td>
+              <td>{{ data.transaction.nro_transaccion }}
+                <p>{{ data.transaction.img | urlFormat }}</p>
+            </td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-12 md:col-6">
+          <div class="p-d-flex p-jc-center p-ai-center">
+            <img
+              class="mat-elevation-z2 transaction-img"
+              [src]="data.transaction.img || imgNotFound"
+              alt="Imagen no encontrada"
+              height="80%"
+              width="100%"
+            />
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+  
+    <mat-dialog-actions align="end">
+      <button class="mr-4" mat-button mat-dialog-close>Cerrar</button>
+    </mat-dialog-actions>
+  </div>
+  

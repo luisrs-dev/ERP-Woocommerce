@@ -1,0 +1,70 @@
+/* Structure */
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filters mat-form-field {
+  margin-right: 10px; /* Espacio entre los campos de filtro */
+}
+
+.date-range-field {
+  width: 20%; /* Ajusta el ancho de input date range */
+}
+
+.custom-excel-button {
+  background-color: green !important; /* Define el color de fondo verde */
+  color: white !important; /* Define el color del texto como blanco */
+}
+.mdc-data-table__cell, .mdc-data-table__header-cell{
+  padding: 0px;
+}
+
+.thumbnail-container {
+  position: absolute;
+  z-index: 9999;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tamaño de imagen en miniatura */
+.thumbnail {
+  max-width: 350px;
+  max-height: 350px;
+}
+
+.mat-cell .transaccion-wrapper {
+  padding: 0 10%;
+  overflow-x: hidden; /* Oculta el contenido que excede el ancho máximo */
+  max-width: 200px; /* Ajusta según sea necesario */
+  white-space: nowrap;
+  text-overflow: ellipsis; /* Muestra puntos suspensivos para indicar contenido truncado */
+}
+
+
+@media (max-width: 767px) {
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive > .mat-table {
+    width: auto;
+    min-width: 100%;
+    table-layout: auto;
+  }
+}

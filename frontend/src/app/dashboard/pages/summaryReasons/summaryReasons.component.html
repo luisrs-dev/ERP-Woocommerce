@@ -1,0 +1,52 @@
+<div class="example-container">
+  <h1>Motivo término de transacciones</h1>
+  <div class="container mat-elevation-z2">
+    <div class="grid">
+      <div class="col-3">
+        <date-range-picker
+          class="w-full"
+          (dateRangeSelected)="onDateRangeSelected($event)"
+        ></date-range-picker>
+      </div>
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Bancos</mat-label>
+            <mat-select [(value)]="selectedBanco">
+              <mat-option value="" selected>Todos</mat-option>
+              @for (banco of bancos; track $index) {
+                <mat-option [value]="banco">{{ banco }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      <div class="col-3">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Actualizar transacciones"
+          matTooltipPosition="above"
+          class="button-with-icon ml-2 mat-elevation-z2"
+          style="color: #0ca86b"
+          (click)="loadTransactions()"
+        >
+        <mat-icon>refresh</mat-icon>
+      </button>
+      </div>
+    </div>
+      <mat-chip-set aria-label="Fish selection">
+        <mat-chip>Desde: {{ startDate | date: "dd/MM/yyyy" }}</mat-chip>
+        <mat-chip>Hasta: {{ endDate | date: "dd/MM/yyyy" }}</mat-chip>
+        <mat-chip>Banco: {{ selectedBanco || 'No seleccionado' }}</mat-chip>
+      </mat-chip-set>
+
+    @if (!loadingTransactions) {
+      <div class="col-12 md:col-9" style="margin-bottom: 50%">
+        <div class="mat-elevation-z1" [chart]="chart"></div>
+      </div>
+    }
+    @if (loadingTransactions) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+  </div>
+  <div></div>
+</div>

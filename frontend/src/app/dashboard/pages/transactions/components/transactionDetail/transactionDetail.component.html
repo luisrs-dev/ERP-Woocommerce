@@ -1,0 +1,103 @@
+<div class="pt-6 pl-2 pr-2">
+  <div class="grid">
+    <div class="col-12">
+      <mat-chip-set aria-label="Fish selection">
+        <mat-chip
+          >Estado:
+          @if (data.transactionCab.estado == "Success") {
+            Pagada <mat-icon class="text-color-rp">check_circle</mat-icon>
+          } @else {
+            No Pagada <mat-icon style="color: red">cancel</mat-icon>
+          }
+        </mat-chip>
+        <mat-chip>{{ data.transactionCab.banco }}</mat-chip>
+        <mat-chip
+          >Fecha:
+          {{ data.transactionCab.fecha | dateFormat }}</mat-chip
+        >
+        <mat-chip
+          >Monto: {{ data.transactionCab.monto | clpCurrency }}</mat-chip
+        >
+        @if(data.transactionCab.orden){
+          <mat-chip (click)="copyToClipboard(data.transactionCab.orden)">N° Orden: {{ data.transactionCab.orden }} <mat-icon style="font-size: 18px;">content_copy</mat-icon></mat-chip>
+        }@else{
+          <mat-chip >N° Orden: {{ data.transactionCab.orden }}</mat-chip>
+        }
+        <mat-chip (click)="copyToClipboard(data.transactionCab.transaccion)">Transacción: {{ data.transactionCab.transaccion }} <mat-icon style="font-size: 18px;">content_copy</mat-icon></mat-chip>
+
+        @if(data.transactionCab.motivo_termino && data.transactionCab.motivo_termino != '' ){
+          <mat-chip>Motivo de término: {{data.transactionCab.motivo_termino}}</mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+
+    <div class="col-12 md:col-12">
+      @if (transctionsRecords && transctionsRecords.length > 0) {
+        <mat-accordion>
+          @for (transaction of transctionsRecords; track $index) {
+            <mat-expansion-panel hideToggle>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  {{ transaction.modulo }} ({{ transaction.tipo }})
+                  <mat-icon>arrow_drop_down</mat-icon>
+
+                  @if(isMobile){
+                    @if (transaction.video) {
+                      <mat-icon style="color: green"
+                        >radio_button_checked</mat-icon
+                      >
+                    }
+                    @if (transaction.img && !isImgNotFound(transaction.img)) {
+                      <mat-icon style="color: green">image</mat-icon>
+                    }
+                  }
+
+                </mat-panel-title>
+                @if(!isMobile){
+                  <mat-panel-description>
+                    @if (transaction.video) {
+                      <mat-icon style="color: green"
+                        >radio_button_checked</mat-icon
+                      >
+                    }
+                    @if (transaction.img && !isImgNotFound(transaction.img)) {
+                      <mat-icon style="color: green">image</mat-icon>
+                    }
+                  </mat-panel-description>
+
+                }
+              </mat-expansion-panel-header>
+              <p>Id: {{ transaction.idlogtransaccion }}</p>
+              <p>N° Transacción: {{ transaction.transaccion }}</p>
+              <p>Tipo: {{ transaction.tipo }}</p>
+              <p>Módulo: {{ transaction.modulo }}</p>
+              <p>Mensaje: {{ transaction.mensaje }}</p>
+              <p>Banco: {{ transaction.banco }}</p>
+              <p>
+                Fecha Hora:
+                {{ transaction.fecha_alta | dateFormat }}
+              </p>
+              @if (transaction.video) {
+                <video width="70%" controls>
+                  <source
+                    [src]="transaction.video"
+                    type="video/mp4"
+                  />
+                </video>
+              } @else {
+                <p>
+                  Content:
+                  {{ transaction.content }}
+                </p>
+              }
+              <!-- <hr /> -->
+              @if (transaction.img && !isImgNotFound(transaction.img)) {
+                <img [src]="transaction.img" alt="" width="500" />
+              }
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      }
+    </div>
+  </div>
+</div>

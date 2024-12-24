@@ -1,0 +1,335 @@
+<div class="example-container">
+  <h1>Transacciones</h1>
+  <div
+    class="container mat-elevation-z2 h-full"
+    [ngStyle]="{ 'padding-bottom': isMobile ? '40%' : '0' }"
+  >
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <mat-form-field appearance="outline" class="w-8">
+          <mat-label>Periodo</mat-label>
+          <mat-select
+            (selectionChange)="onPeriodSelected($event)"
+            [(value)]="selectedPeriodValue"
+          >
+            <mat-option value="10">10 minutos</mat-option>
+            <mat-option value="30">30 minutos</mat-option>
+            <mat-option value="60">1 hora</mat-option>
+            <mat-option value="3">3 horas</mat-option>
+            <mat-option value="6">6 horas</mat-option>
+            <mat-option value="12">12 horas</mat-option>
+            <mat-option value="day-current">Día Actual</mat-option>
+            <mat-option value="day-previous">Día Anterior</mat-option>
+          </mat-select>
+          @if (!isMobile) {
+            <mat-hint align="start">
+              <strong
+                >Desde {{ startDate | date: "dd/MM/yyyy HH:mm" }} - Hasta
+                {{ endDate | date: "dd/MM/yyyy HH:mm" }}</strong
+              >
+            </mat-hint>
+          }
+        </mat-form-field>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Actualizar transacciones"
+          matTooltipPosition="above"
+          class="button-with-icon ml-2 mat-elevation-z2"
+          style="color: #0ca86b"
+          (click)="updateTransactions()"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Búsqueda Avanzada"
+          matTooltipPosition="above"
+          class="button-with-icon ml-2 mat-elevation-z2"
+          style="color: #0ca86b"
+          (click)="enabledAdvancedSearch()"
+        >
+          <mat-icon>search</mat-icon>
+        </button>
+        @if (isMobile) {
+          <mat-chip-set aria-label="Fish selection">
+            <mat-chip
+              >Desde: {{ startDate | date: "dd/MM/yyyy HH:mm" }}</mat-chip
+            >
+            <mat-chip>Hasta: {{ endDate | date: "dd/MM/yyyy HH:mm" }}</mat-chip>
+          </mat-chip-set>
+        }
+        @if (loadingTransactions) {
+          <mat-spinner color="#0ca86b" diameter="40"></mat-spinner>
+        }
+      </div>
+      <div class="col-12 col-offset-0 md:col-offset-2 md:col-4">
+        <div class="w-full">
+          @if (!isMobile) {
+            <mat-form-field class="w-full" appearance="outline">
+              <mat-label>Buscar...</mat-label>
+              <input matInput (keyup)="applyFilterInput($event)" #input />
+            </mat-form-field>
+          }
+        </div>
+      </div>
+    </div>
+    @if (activeAdvancedSearch) {
+      <mat-divider class="mt-1 mb-2"></mat-divider>
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <mat-form-field
+            #order
+            appearance="outline"
+            class="example-full-width"
+          >
+            <mat-label>N° Orden</mat-label>
+            <input matInput placeholder="N° Orden" />
+          </mat-form-field>
+        </div>
+        <div class="col-12 md:col-3">
+          <mat-form-field appearance="outline" class="date-range-field w-full">
+            <mat-label>Rango de fecha</mat-label>
+            <mat-date-range-input [rangePicker]="picker" #startDateAdvanced>
+              <input matStartDate matInput placeholder="Start date" />
+              <input matEndDate matInput placeholder="End date" />
+            </mat-date-range-input>
+            <mat-hint>Día/Mes/Año – Día/Mes/Año</mat-hint>
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+        <div class="col-12 md:col-3">
+          <button
+            mat-flat-button
+            color="primary"
+            class="border-round-xl ml-1 mr-2 my-auto mat-elevation-z2 text-white"
+            (click)="advancedSearch()"
+          >
+            <mat-icon>search</mat-icon>
+            Búsqueda Avanzada
+          </button>
+          <button 
+          mat-stroked-button 
+          (click)="cleanFilters()"
+           matTooltip="Limpiar filtros"
+          matTooltipPosition="above"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+
+    <mat-divider class="mb-2"></mat-divider>
+
+    @if (isMobile) {
+      <div class="mt-3">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Buscar</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilterInput($event)"
+            placeholder="Buscar por..."
+            #input
+          />
+        </mat-form-field>
+      </div>
+    }
+
+    <div class="pb-4">
+      <mat-table
+        #table
+        [dataSource]="dataSource"
+        matSort
+        class="pt-4 table-responsive"
+      >
+        <ng-container matColumnDef="nro_orden">
+          <mat-header-cell
+            class="mat-header-cell"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            N° Orden
+          </mat-header-cell>
+          <mat-cell
+            data-label="Transacción"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            <div class="pr-4">
+              {{ element.orden }}
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="monto">
+          <mat-header-cell
+            class="mat-header-cell"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Monto
+          </mat-header-cell>
+          <mat-cell
+            data-label="Monto"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            <div class="transaccion-wrapper">
+              {{ element.monto | clpCurrency }}
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="banco">
+          <mat-header-cell
+            class="mat-header-cell"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Banco
+          </mat-header-cell>
+          <mat-cell
+            data-label="Transacción"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            {{ element.banco != "" ? element.banco : "Sin información" }}
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="fecha">
+          <mat-header-cell
+            class="mat-header-cell"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Fecha
+          </mat-header-cell>
+          <mat-cell
+            data-label="Fecha"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            {{ element.fecha | dateFormat }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="tiempo_sesion">
+          <mat-header-cell
+            class="mat-header-cell"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Tiempo sesión
+          </mat-header-cell>
+          <mat-cell
+            data-label="tiempo_sesion"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            {{ element.tiempo_sesion | secondsToMinutes }}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <mat-header-cell
+            class="mat-header-cell pl-2"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Pagada
+          </mat-header-cell>
+          <mat-cell
+            data-label="pagada"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            @if (element.estado == "Success") {
+              <button
+                mat-stroked-button
+                color="primary"
+                (click)="viewInfo(element)"
+              >
+                {{ element.estado }}
+              </button>
+            }
+            @if (element.estado == "Info") {
+              <button mat-stroked-button (click)="viewInfo(element)">
+                {{ element.estado }}
+              </button>
+            }
+
+            @if (element.estado == "Error") {
+              <button
+                mat-stroked-button
+                color="accent"
+                (click)="viewInfo(element)"
+              >
+                {{ element.estado }}
+              </button>
+            }
+
+            <button class="ml-1" mat-stroked-button (click)="viewLog(element)">
+              Logs
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="activa">
+          <mat-header-cell
+            class="mat-header-cell pl-2"
+            *matHeaderCellDef
+            mat-sort-header
+          >
+            Deshabilitar
+          </mat-header-cell>
+          <mat-cell
+            data-label="activa"
+            class="mat-cell"
+            *matCellDef="let element"
+          >
+            <p>
+              <mat-slide-toggle
+                (change)="
+                  setDisabled(
+                    element.idregistrocab,
+                    valueDisabled(element.deshabilitado)
+                  )
+                "
+                [checked]="valueDisabled(element.deshabilitado)"
+              ></mat-slide-toggle>
+            </p>
+            @if (element.showSpinner) {
+              <app-spinner
+                id="spiner-transaction-{{ element.idregistrocab }}"
+              ></app-spinner>
+            }
+          </mat-cell>
+        </ng-container>
+
+        @if (!isMobile) {
+          <mat-header-row
+            class="mat-header-row"
+            *matHeaderRowDef="displayedColumns"
+          ></mat-header-row>
+        }
+        <mat-row
+          class="mat-row"
+          *matRowDef="let row; columns: displayedColumns"
+        ></mat-row>
+      </mat-table>
+
+      <!-- Paginación -->
+      <mat-paginator
+        [pageSizeOptions]="[20, 40, 60, 100]"
+        pageSize="20"
+        showFirstLastButtons
+      ></mat-paginator>
+    </div>
+  </div>
+</div>

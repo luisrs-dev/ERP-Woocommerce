@@ -1,0 +1,133 @@
+<div class="my-auto" [class.mx-auto]="!isMobile">
+  <h2 class="text-center" mat-dialog-title>Búsqueda Avanzada</h2>
+  <mat-dialog-content class="pt-2">
+    <div class="grid">
+      <div class="col-12 md:col-3 md:col-offset-2">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          class="mr-1"
+          appearance="outline"
+        >
+          <mat-label>Módulo</mat-label>
+          <mat-select #moduloSelect matInput [(value)]="moduleSelected">
+            <mat-option value="null" disabled=""
+              >Seleccione una opción</mat-option
+            >
+            @for (modulo of data.modulos; track $index) {
+              <mat-option value="{{ modulo }}">{{ modulo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-12 md:col-3">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          class="mr-1"
+          appearance="outline"
+        >
+          <mat-label>Tipo</mat-label>
+          <mat-select #tipoSelect matInput [(value)]="typeSelected">
+            <mat-option value="null" disabled=""
+              >Seleccione una opción</mat-option
+            >
+            @for (tipo of data.tipos; track $index) {
+              <mat-option value="{{ tipo }}">{{ tipo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-12 md:col-3">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          class="mr-1"
+          appearance="outline"
+        >
+          <mat-label>Banco</mat-label>
+          <mat-select #banco matInput [(value)]="bankSelected">
+            <mat-option value="null" disabled=""
+              >Seleccione una opción</mat-option
+            >
+            @for (banco of data.bancos; track $index) {
+              @if(banco != '-'){
+                <mat-option value="{{ banco }}">{{ banco }}</mat-option>
+              }
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-12 md:col-5 md:col-offset-2">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          appearance="outline"
+          class="date-range-field"
+        >
+          <mat-label>Rango de fecha</mat-label>
+          <mat-date-range-input
+            [rangePicker]="picker"
+            #startDate
+            (ngModelChange)="applyFilter()"
+          >
+            <input matStartDate matInput placeholder="Start date" />
+            <input matEndDate matInput placeholder="End date" />
+          </mat-date-range-input>
+          <mat-hint>Día/Mes/Año – Día/Mes/Año</mat-hint>
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <div class="col-12 md:col-4">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          #nroOrden
+          matInput
+          appearance="outline"
+        >
+          <mat-label>N° Orden</mat-label>
+          <input matInput [value]="order || ''" placeholder="N° Orden" />
+        </mat-form-field>
+      </div>
+      <div class="col-12 md:col-9 md:col-offset-2 ">
+        <mat-form-field
+          [class.w-11]="isMobile"
+          [class.w-full]="!isMobile"
+          #idTransaccion
+          matInput
+          appearance="outline"
+        >
+          <mat-label>Transacción</mat-label>
+          <input matInput [value]="idTransaction || ''" placeholder="ID de transacción" />
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <div class="grid">
+      <div class="col-4 mr-2">
+        <button mat-stroked-button mat-dialog-close>Cancel</button>
+      </div>
+      <div class="col-4">
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="applyFilter()"
+          [class.hidden]="showLoader"
+          class="text-white ml-2"
+        >
+          Buscar
+        </button>
+        @if (showLoader) {
+          <app-spinner></app-spinner>
+        }
+      </div>
+      <div class="col-2"></div>
+    </div>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,321 @@
+<div class="example-container">
+    <h1>Auditoría</h1>
+    <div class="container mat-elevation-z2">
+      <div class="filters mt-2">
+        <button
+          mat-flat-button
+          color="primary"
+          class="border-round-xl ml-1 my-auto mat-elevation-z2 text-white"
+          (click)="openBottomSheet()"
+        >
+          <mat-icon>download</mat-icon>
+          Exportar
+        </button>
+  
+        <button
+          mat-flat-button
+          color="primary"
+          class="border-round-xl ml-1 mr-2 my-auto mat-elevation-z2 text-white"
+          (click)="openAdvancedFilterDialog()"
+        >
+          <mat-icon>search</mat-icon>
+          @if (!isMobile) {
+            Búsqueda
+          }
+          Avanzada
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Actualizar transacciones"
+          matTooltipPosition="above"
+          class="button-with-icon mr-2 mat-elevation-z2"
+          style="color: #0ca86b"
+          (click)="updateTransactions()"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+  
+        <button
+          mat-icon-button
+          color="primary"
+          class="button-with-icon"
+          matTooltip="Limpiar filtros"
+          matTooltipPosition="above"
+          class="mr-1 mat-elevation-z2"
+          style="color: #0ca86b"
+          (click)="clearFilters()"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+        @if (loadingData) {
+          <mat-spinner color="#0ca86b" diameter="40"></mat-spinner>
+        }
+        <span class="spacer"></span>
+  
+        @if (!isMobile) {
+          <mat-form-field class="w-auto" appearance="outline">
+            <mat-label>Buscar...</mat-label>
+            <input matInput (keyup)="applyFilterInput($event)" #input />
+          </mat-form-field>
+        }
+      </div>
+      @if (isMobile) {
+        <div class="mt-3">
+          <mat-form-field class="w-full" appearance="outline">
+            <mat-label>Buscar</mat-label>
+            <input
+              matInput
+              (keyup)="applyFilterInput($event)"
+              placeholder="Buscar por..."
+              #input
+            />
+          </mat-form-field>
+        </div>
+      }
+  
+      @if (filters && filters.length > 0) {
+        <div class="w-auto">
+          <mat-form-field class="example-chip-list">
+            <mat-label>Filtros aplicados</mat-label>
+            <mat-chip-grid #chipGrid aria-label="Enter fruits">
+              @for (filter of filters; track filter) {
+                <mat-chip-row
+                  (removed)="remove(filter)"
+                  [editable]="true"
+                  [aria-description]="'press enter to edit ' + filter.name"
+                >
+                  {{ filter.name }}:{{ filter.value }}
+                  <button
+                    matChipRemove
+                    [attr.aria-label]="'remove ' + filter.name"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+              <input
+                [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="addOnBlur"
+              />
+            </mat-chip-grid>
+          </mat-form-field>
+        </div>
+      }
+      <div class="mat-elevation-z2">
+        <mat-table
+          #table
+          [dataSource]="dataSource"
+          matSort
+          class="pt-4">
+          <!-- ACTION BUTTONS -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              style="max-width: 60px !important"
+            ></mat-header-cell>
+            <mat-cell
+              class="mat-cell"
+              *matCellDef="let element; let i = index"
+              style="max-width: 60px !important"
+            >
+              <button
+                mat-icon-button
+                color="primary"
+                style="color: #0ca86b"
+                (click)="viewInfo(element)"
+                class="button-with-icon"
+                (mouseover)="showThumbnail($event, i)"
+                (mouseleave)="hideThumbnail()"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <!-- Aquí muestra la imagen en miniatura -->
+              <div
+                class="thumbnail-container"
+                [style.display]="
+                  selectedRowIndex === i && showThumbnailValue ? 'block' : 'none'
+                "
+                [style.left.px]="thumbnailXPosition"
+                [style.top.px]="thumbnailYPosition"
+              >
+                <img
+                  [src]="element.img"
+                  (error)="element.img = imgNotFound"
+                  alt="Miniatura"
+                  class="thumbnail"
+                  height="450"
+                  width="450"
+                />
+              </div>
+            </mat-cell>
+          </ng-container>
+          <!-- END ACTION BUTTONS -->
+  
+          <ng-container matColumnDef="transaccion">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              N° Transacción
+            </mat-header-cell>
+            <mat-cell
+              data-label="Transacción"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+            <div class="transaccion-wrapper">
+              {{ element.transaccion }}
+            </div>
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="monto">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Monto
+            </mat-header-cell>
+            <mat-cell
+              data-label="Monto"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+            <div class="transaccion-wrapper">
+              {{ element.monto | clpCurrency }}
+            </div>
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="nro_transaccion">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              N° Orden
+            </mat-header-cell>
+            <mat-cell
+              data-label="Nro. Transacción"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+            <div class="transaccion-wrapper">
+              {{ element.nro_transaccion }}
+            </div>
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="banco">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Banco
+            </mat-header-cell>
+            <mat-cell
+              data-label="Transacción"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+              {{ element.banco != "" ? element.banco : "Sin información" }}
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="modulo">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Módulo
+            </mat-header-cell>
+            <mat-cell
+              data-label="Módulo"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+              {{ element.modulo }}
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="fecha_alta">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Fecha Alta
+            </mat-header-cell>
+            <mat-cell
+              data-label="Fecha"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+              {{ element.fecha_alta | dateFormat }}
+            </mat-cell>
+          </ng-container>
+  
+  
+          <ng-container matColumnDef="mensaje">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Mensaje
+            </mat-header-cell>
+            <mat-cell
+              data-label="Mensaje"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+              {{ element.mensaje }}
+            </mat-cell>
+          </ng-container>
+  
+          <ng-container matColumnDef="tipo">
+            <mat-header-cell
+              class="mat-header-cell"
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              Tipo
+            </mat-header-cell>
+            <mat-cell
+              data-label="Tipo"
+              class="mat-cell"
+              *matCellDef="let element"
+            >
+              {{ element.tipo }}
+            </mat-cell>
+          </ng-container>
+  
+          @if (!isMobile) {
+            <mat-header-row
+              class="mat-header-row"
+              *matHeaderRowDef="displayedColumns"
+            ></mat-header-row>
+          }
+          <mat-row
+            class="mat-row"
+            *matRowDef="let row; columns: displayedColumns"
+          ></mat-row>
+        </mat-table>
+  
+        <!-- Paginación -->
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 20]"
+          pageSize="10"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+    </div>
+  </div>
+  

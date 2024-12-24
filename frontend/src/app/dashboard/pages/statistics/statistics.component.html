@@ -1,0 +1,28 @@
+<div class="grid pt-4">
+  @if (loadingStadistics) {
+    <div class="col col-offset-4">
+      <app-spinner></app-spinner>
+    </div>
+  }
+
+  @if (!loadingStadistics) {
+    <div class="col-12 md:col-3">
+      <div class="bg-white mat-elevation-z1">
+        <app-banks></app-banks>
+      </div>
+    </div>
+    <div class="col-12 md:col-9">
+      <div class="grid">
+        <div class="col-12">
+          <transactions-by-bank [transactionsByBank]="transactionsByBank"></transactions-by-bank>
+        </div>
+        <div class="col-12 md:col-6">
+          <transactions24-hrs [transactions]="last24HoursCounts"></transactions24-hrs>
+        </div>
+        <div class="col-12 md:col-6">
+          <transactions-last-week [transactions]="lastWeekCounts"></transactions-last-week>
+        </div>
+      </div>
+    </div>
+  }
+</div>

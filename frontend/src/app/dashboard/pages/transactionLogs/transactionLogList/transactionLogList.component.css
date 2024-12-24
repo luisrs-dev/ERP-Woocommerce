@@ -1,0 +1,114 @@
+/* Structure */
+table {
+  width: 100%;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filters mat-form-field {
+  margin-right: 10px; /* Espacio entre los campos de filtro */
+}
+
+.date-range-field {
+  width: 20%; /* Ajusta el ancho de input date range */
+}
+
+.custom-excel-button {
+  background-color: green !important; /* Define el color de fondo verde */
+  color: white !important; /* Define el color del texto como blanco */
+}
+.mdc-data-table__cell, .mdc-data-table__header-cell{
+  padding: 0px;
+}
+
+.thumbnail-container {
+  position: absolute;
+  z-index: 9999;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tamaño de imagen en miniatura */
+.thumbnail {
+  max-width: 350px;
+  max-height: 350px;
+}
+
+.mat-cell .transaccion-wrapper {
+  padding: 0 10%;
+  overflow-x: hidden; /* Oculta el contenido que excede el ancho máximo */
+  max-width: 200px; /* Ajusta según sea necesario */
+  white-space: nowrap;
+  text-overflow: ellipsis; /* Muestra puntos suspensivos para indicar contenido truncado */
+}
+
+
+/* Table Responsive */
+@media screen and (max-width: 960px) {
+  .mat-table {
+    border: 0;
+    vertical-align: middle
+  }
+
+  .mat-table caption {
+    font-size: 1em;
+  }
+  
+  /*  Enable this to hide header*/
+  .mat-table .mat-header-cell {
+    
+    border: 10px solid;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+  .mat-table .mat-row {
+    border-bottom: 5px solid #ddd;
+    display: block;
+  }
+  /*
+  .mat-table .mat-row:nth-child(even) {background: #CCC}
+  .mat-table .mat-row:nth-child(odd) {background: #FFF}
+  */
+  .mat-table .mat-cell {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: 1em;
+    text-align: right;
+    font-weight: bold;
+    height:30px;
+    margin-bottom: 4%;
+  }
+  .mat-table .mat-cell:before {
+    /*
+    * aria-label has no advantage, it won't be read inside a table
+    content: attr(aria-label);
+    */
+    content: attr(data-label);
+    float: left;
+    text-transform: uppercase;
+    font-weight: normal;
+    
+    font-size: .85em;
+  }
+  .mat-table .mat-cell:last-child {
+    border-bottom: 0;
+  }
+    .mat-table .mat-cell:first-child {
+    margin-top: 4%;
+  }
+}

@@ -1,0 +1,266 @@
+  <div class="example-container">
+    <div class="grid">
+      <div class="col-12 md:col-2">
+        <mat-form-field appearance="outline">
+          <mat-label>Periodo</mat-label>
+          <mat-select
+            (selectionChange)="onPeriodSelected($event)"
+            [(value)]="defaultPeriod"
+          >
+            <mat-option value="10">10 minutos</mat-option>
+            <mat-option value="30">30 minutos</mat-option>
+            <mat-option value="60">1 hora</mat-option>
+            <mat-option value="3">3 horas</mat-option>
+            <mat-option value="6">6 horas</mat-option>
+            <mat-option value="12">12 horas</mat-option>
+            <mat-option value="day-current">Día Actual</mat-option>
+            <mat-option value="day-previous">Día Anterior</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (isMobile) {
+          <button
+            mat-flat-button
+            color="primary"
+            class="text-white ml-1"
+            (click)="updateTransactions()"
+          >
+            <mat-icon>refresh</mat-icon>
+            Actualizar
+          </button>
+        }
+      </div>
+      @if (!isMobile) {
+        <div class="col-12 md:col-2 ml-2 mt-2">
+          <button
+            mat-flat-button
+            color="primary"
+            class="text-white ml-1"
+            (click)="updateTransactions()"
+          >
+            <mat-icon>refresh</mat-icon>
+            Actualizar
+          </button>
+        </div>
+      }
+      <div class="col-12 md:col-3 mt-2">
+        <mat-chip-set aria-label="Fish selection">
+          <mat-chip>Desde: {{ startDate | date: "dd/MM/yyyy HH:mm" }}</mat-chip>
+          <mat-chip>Hasta: {{ endDate | date: "dd/MM/yyyy HH:mm" }}</mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <div>
+      @if (loadingData) {
+        <app-spinner></app-spinner>
+      } @else {
+        <div class="grid">
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>Total Ordenes</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp">{{
+                  cantidad_total_transacciones_bancos
+                }}</span>
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>Pagadas</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp">{{
+                  cantidad_total_transacciones_pagadas
+                }}</span>
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>No Pagadas</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp">{{
+                  cantidad_total_transacciones_no_pagadas
+                }}</span>
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>Conversión</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp"
+                  >{{
+                    (cantidad_total_transacciones_pagadas /
+                      cantidad_total_transacciones_bancos) *
+                      100 | number: "1.0-0"
+                  }}%</span
+                >
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>Monto Total</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp">{{
+                  monto_total_bancos && monto_total_bancos | clpCurrency
+                }}</span>
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div class="col-6 md:col-2">
+            <mat-card class="example-card">
+              <mat-card-header class="mb-4">
+                <mat-card-title>Monto Pagado</mat-card-title>
+                <!-- <mat-card-subtitle>Dog Breed</mat-card-subtitle> -->
+              </mat-card-header>
+              <mat-card-content>
+                <span class="text-3xl text-color-rp">{{
+                  monto_total_pagado && monto_total_pagado | clpCurrency
+                }}</span>
+                <span> </span>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-12 md:col-9">
+            <div class="container table-responsive mat-elevation-z1">
+              <mat-table
+                class="mat-table"
+                [dataSource]="dataSource"
+                matSort
+              >
+                <ng-container matColumnDef="banco">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Banco
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.banco }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="total_transacciones">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Transacciones
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.total_transacciones }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cantidad_transacciones_pagadas">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Pagadas
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.cantidad_transacciones_pagadas }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cantidad_transacciones_no_pagadas">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    No Pagadas
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.cantidad_transacciones_no_pagadas }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="conversion">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Conversión
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.conversion_rate | number: "1.0-0" }}%
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="monto_total">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Monto Total
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.monto_total | clpCurrency }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="monto_pagado">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Pagado
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.monto_pagado | clpCurrency }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="monto_no_pagadas">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    No Pagado
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.monto_no_pagadas | clpCurrency }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cantidad_errores">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Errores
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.error }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="warning">
+                  <th mat-header-cell class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                    Info
+                  </th>
+                  <td mat-cell class="mat-cell" *matCellDef="let transaction">
+                    {{ transaction.warning }}
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr
+                  mat-row class="mat-row"
+                  *matRowDef="let row; columns: displayedColumns"
+                ></tr>
+              </mat-table>
+
+              <mat-paginator
+                [pageSizeOptions]="[5, 10, 25, 100]"
+                aria-label="Select page of users"
+              ></mat-paginator>
+            </div>
+          </div>
+
+          <div class="col-12 md:col-3" style="margin-bottom: 50%;">
+            <div class="mat-elevation-z1" [chart]="chart"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>

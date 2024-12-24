@@ -1,0 +1,29 @@
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table th {
+  background-color: #f2f2f2;
+}
+
+.mat-chip {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
