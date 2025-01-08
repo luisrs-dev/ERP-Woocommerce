@@ -1,0 +1,14 @@
+<div *ngIf="product$ | async as product; else loading">
+  <h1>{{ product.name }}</h1>
+  <p><strong>Descripción:</strong> {{ product.description }}</p>
+  <p><strong>Precio:</strong> {{ product.price | currency }}</p>
+
+  Categorias
+  @for (category of product.categories; track $index) {
+    <p>{{category.name}}</p>
+  }
+</div>
+
+<ng-template #loading>
+  <p>Cargando producto...</p>
+</ng-template>

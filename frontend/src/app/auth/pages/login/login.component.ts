@@ -41,20 +41,20 @@ export default class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  private changeDetectorRef = inject(ChangeDetectorRef); 
+  private changeDetectorRef = inject(ChangeDetectorRef);
   public authStatus: AuthStatus = AuthStatus.notAuthenticated;
   public loading: boolean = false;
 
-  ngOnInit(){
-    this.authService.autoAuthUser();
-    if(this.authService.getIsAuthenticated()){
-      this.router.navigateByUrl('/dashboard');
-    }
-  }
+  // ngOnInit(){
+  //   this.authService.autoAuthUser();
+  //   if(this.authService.getIsAuthenticated()){
+  //     this.router.navigateByUrl('/dashboard');
+  //   }
+  // }
 
   public myForm: FormGroup = this.fb.group({
     email: [environment.userDefault.email, [Validators.required, Validators.email]],
-    password: [environment.userDefault.password, [Validators.required, Validators.minLength(4)]],
+    password: ['Cdf1#!23@_', [Validators.required, Validators.minLength(4)]],
   });
 
   onSubmit(): void {
@@ -66,8 +66,8 @@ export default class LoginComponent {
       return;
     }
 
-    this.router.navigateByUrl('/dashboard');
-    
+    this.router.navigateByUrl('/dashboard/productos');
+
     //this.authService.login(email, password).subscribe({
     //  next: () => this.router.navigateByUrl('/dashboard'),
     //  error: (message) => {
