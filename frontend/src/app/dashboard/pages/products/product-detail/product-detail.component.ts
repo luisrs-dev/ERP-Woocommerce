@@ -1,55 +1,84 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ProductsService } from '../products.service';
-import { catchError, Observable, of, switchMap } from 'rxjs';
+import {
+  catchError,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { Product } from '../../../interfaces/orders.interface';
+import { Product } from '../../../interfaces/product.interface';
 import { CommonModule } from '@angular/common';
+import { MaterialModule } from '../../../../angular-material/material.module';
+import { NotiflixService } from '../../../../shared/services/Notiflix.service';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, MaterialModule],
 })
 export default class ProductDetailComponent implements OnInit {
   private productService = inject(ProductsService);
   private route = inject(ActivatedRoute);
-
+  private notiflixService = inject(NotiflixService);
 
   public product$: Observable<Product | null> = this.route.paramMap.pipe(
     switchMap((params) => {
+      this.notiflixService.block('container', 'Cargando producto...');
       const id = params.get('id');
-      return id ? this.productService.getProductById(id) : of(null);
+      return id ? this.productService.getProductById(id) : of(null); // Obtener el producto por ID
+    }),
+    switchMap((product) => {
+      if (product && product.variations && product.variations.length > 0) {
+        // Si el producto tiene variaciones, obtener las variaciones por sus IDs.
+        return forkJoin(
+          product.variations.map(
+            (variationId: number) =>
+              this.productService.getVariationById(product.id, variationId) // Obtener cada variación
+          )
+        ).pipe(
+          map((variations) => {
+            // Combinar el producto con sus variaciones
+            return { ...product, variations };
+          })
+        );
+      }
+      return of(product); // Si no tiene variaciones, simplemente devolver el producto
+    }),
+    tap((product) => {
+      console.log('Producto y variaciones:', product);
+      this.notiflixService.unblock('container');
     }),
     catchError((error) => {
       console.error('Error al cargar el producto:', error);
       return of(null); // Devuelve un valor por defecto si hay un error
     })
-  );  public isLoading: boolean = true;
+  );
 
-  ngOnInit() {
-    // const id = this.route.snapshot.paramMap.get('id')!;
+  ngOnInit() {}
 
-    // if (id) {
-    //   this.productService.getProductById(id).subscribe({
-    //     next: (data) => {
-    //       this.product = data;
-    //       console.log(this.product);
-    //       console.log(this.product.name);
-    //       console.log(this.product.categories);
+  onUpdateStock(
+    productId: number,
+    variationId: number,
+    stock_quantity: number
+  ) {
+    console.log('actualizando datos');
+    console.log({ productId, variationId, stock_quantity });
 
-    //       this.isLoading = false;
-    //       console.log(this.isLoading && this.product);
-    //     this.changeDetectorRef.detectChanges();
-
-
-    //     },
-    //     error: (err) => {
-    //       console.error('Error al cargar el producto', err);
-    //       this.isLoading = false;
-    //     },
-    //   });
-    // }
+    this.productService
+      .updateVariation(productId, variationId, { stock_quantity })
+      .subscribe({
+        next: (response) => {
+          console.log('Stock actualizado con éxito:', response);
+        },
+        error: (error) => {
+          console.error('Error al actualizar el stock:', error);
+        },
+      });
   }
 }

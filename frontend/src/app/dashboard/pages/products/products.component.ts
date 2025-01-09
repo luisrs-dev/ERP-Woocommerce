@@ -5,9 +5,9 @@ import { MaterialModule } from '../../../angular-material/material.module';
 import { MatSelectChange } from '@angular/material/select';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { Product } from '../../interfaces/orders.interface';
+import { Product } from '../../interfaces/product.interface';
 import { Router } from '@angular/router';
-
+import { NotiflixService } from '../../../shared/services/Notiflix.service';
 
 @Component({
   selector: 'app-products',
@@ -19,10 +19,16 @@ import { Router } from '@angular/router';
 })
 export default class ProductsComponent {
   private productService = inject(ProductsService);
+  private notiflixService = inject(NotiflixService);
   private router = inject(Router);
-  // public dataSource = new MatTableDataSource<OrdersResponse>([]);
-
-  displayedColumns: string[] = ['sku', 'name', 'status', 'type', 'catalog_visibility', 'actions'];
+  displayedColumns: string[] = [
+    'sku',
+    'name',
+    'status',
+    'type',
+    'catalog_visibility',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<Product>([]);
 
   applyFilter(event: Event) {
@@ -31,26 +37,53 @@ export default class ProductsComponent {
   }
 
   ngOnInit(): void {
-    this.productService.getProducts().pipe(
-      catchError((error) => {
-        console.error('Error en la solicitud:', error);
-        return []; // Retornar un arreglo vacío o cualquier valor predeterminado
-      })
-    ).subscribe((response) => {
-      console.log('Productos obtenidos:', response);
-      this.dataSource.data = response;
-    });
+    this.notiflixService.block('products-list', 'Cargando productos');
+    this.productService
+      .getProducts()
+      .pipe(
+        catchError((error) => {
+          console.error('Error en la solicitud:', error);
+          return []; // Retornar un arreglo vacío o cualquier valor predeterminado
+        })
+      )
+      .subscribe((response) => {
+        console.log('Productos obtenidos:', response);
+        this.dataSource.data = response;
+        this.notiflixService.unblock('products-list');
+      });
   }
 
-  onPeriodSelected(event: MatSelectChange){
+  onPeriodSelected(event: MatSelectChange) {
     console.log('onPeriodSelected');
   }
 
-  updateTransactions(){
+  updateTransactions() {
     console.log('updateTransactions');
-
   }
-  onProduct(id: string){
+  onProduct(id: string) {
     this.router.navigate([`dashboard/producto/${id}`]);
+  }
+
+  detailType(product: Product): { type: string; variations: number } {
+    if (product.type == 'variable') {
+      return { type: 'Variable', variations: product.variations.length };
+    } else {
+      return { type: 'Simple', variations: 0 };
+    }
+  }
+
+  public generateSku(): string {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+
+    const randomLetters = Array.from({ length: 3 }, () =>
+      letters.charAt(Math.floor(Math.random() * letters.length))
+    ).join('');
+
+    const randomNumbers = Array.from({ length: 5 }, () =>
+      numbers.charAt(Math.floor(Math.random() * numbers.length))
+    ).join('');
+
+    return `${randomLetters}${randomNumbers}`;
   }
 }

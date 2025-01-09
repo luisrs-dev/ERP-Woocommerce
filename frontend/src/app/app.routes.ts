@@ -19,8 +19,24 @@ export const routes: Routes = [
       // },
       {
         path: 'productos',
+        title: 'Pedidos',
+        data: { icon: 'storefront' },
+
+        loadComponent: () =>
+          import('./dashboard/pages/products/products.component'),
+      },
+      {
+        path: 'productos',
         title: 'Productos',
-        data: { icon: 'analytics' },
+        data: { icon: 'inventory' },
+
+        loadComponent: () =>
+          import('./dashboard/pages/products/products.component'),
+      },
+      {
+        path: 'productos',
+        title: 'Finanzas',
+        data: { icon: 'account_balance' },
 
         loadComponent: () =>
           import('./dashboard/pages/products/products.component'),

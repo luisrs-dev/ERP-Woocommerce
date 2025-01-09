@@ -3,7 +3,7 @@
   <button mat-icon-button (click)="toggleMenu()">
     <mat-icon style="color: white" class="mat-18">menu</mat-icon>
   </button>
-  <img src="../../assets/images/logo-blanco.png" height="40" alt="" />
+  <img src="../../assets/images/logo-blanco-erp.png" height="60" alt="" style="margin-left:2%;"/>
   <span class="spacer"></span>
 
   @if (!isMobile) {
@@ -43,10 +43,6 @@
       <mat-list-item routerLink="menuItem.path"
           (click)="navigateToTelegramBot()" class="h-auto"
         >
-        <div>
-          <mat-divider></mat-divider>
-          <img src="../../assets/images/logo-telegram.png" class="w-auto mt-3" height="60" alt="" />
-        </div>
         </mat-list-item>
     </mat-nav-list>
   </mat-sidenav>
