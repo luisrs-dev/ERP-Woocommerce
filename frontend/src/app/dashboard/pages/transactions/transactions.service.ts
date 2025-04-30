@@ -55,8 +55,8 @@ export class TransactionsService {
 
   /**
    * Fetch transactions_cab
-   * @param {Date} startDate - Fecha de inicio 
-   * @param {Date} endDate - Fecha fin  
+   * @param {Date} startDate - Fecha de inicio
+   * @param {Date} endDate - Fecha fin
    * @param order - Número de orden de la transacción
    * @returns {Observable<TransactionCab[]>} - Una promesa que se resuelve al obtener las transacciones.
    */
@@ -67,7 +67,7 @@ export class TransactionsService {
     bank?: string
   ): Observable<TransactionCab[]> {
     let params = new HttpParams();
-    
+
     if (startDate) {
       params = params.set('startDate', this.formatDate(startDate));
     }
@@ -75,14 +75,14 @@ export class TransactionsService {
     if (endDate) {
       params = params.set('endDate', this.formatDate(endDate));
     }
-    
+
     if (order) {
       params = params.set('order', order);
     }
 
     if (bank) {
       params = params.set('bank', bank);
-    }    
+    }
 
     return this.http.get<TransactionCab[]>(
       `${this.backend}/transaction/cab`,
@@ -110,13 +110,13 @@ export class TransactionsService {
         if(filter.value) params = params.set(filter.name, filter.value);
       }
     }
-    
+
     return this.http.get<ResponseTransactions>(`${this.backend}/transaction/log`, {
       params,
     });
   }
 
-  setDisabled(id: string, newState: boolean):Observable<TransactionCab> {    
+  setDisabled(id: string, newState: boolean):Observable<TransactionCab> {
     return this.http.post<TransactionCab>(`${this.backend}/transaction/state`, { id, state: newState })
   }
 
