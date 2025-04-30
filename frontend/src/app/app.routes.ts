@@ -10,16 +10,16 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'resumen-transacciones',
+        redirectTo: 'orders',
         pathMatch: 'full'
       },
       {
-        path: 'resumen-transacciones',
+        path: 'orders',
         title: 'Dashboard',
         data: { icon: 'analytics' },
 
         loadComponent: () =>
-          import('./dashboard/pages/summaryTransactions/summaryTransactions.component'),
+          import('./dashboard/pages/orders/orders.component'),
       },
       {
         path: 'transacciones',
