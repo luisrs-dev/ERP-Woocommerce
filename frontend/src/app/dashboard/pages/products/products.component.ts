@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { ProductsService } from './products.service';
-import { catchError } from 'rxjs';
+import { BehaviorSubject, catchError } from 'rxjs';
 import { MaterialModule } from '../../../angular-material/material.module';
 import { MatSelectChange } from '@angular/material/select';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
@@ -8,27 +8,27 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Product } from '../../interfaces/product.interface';
 import { Router } from '@angular/router';
 import { NotiflixService } from '../../../shared/services/Notiflix.service';
+import { ExportExcelService } from '../../../shared/services/Excel.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [MaterialModule, SpinnerComponent],
+  imports: [MaterialModule, SpinnerComponent, CommonModule],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class ProductsComponent {
   private productService = inject(ProductsService);
   private notiflixService = inject(NotiflixService);
+  private exportExcelService = inject(ExportExcelService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
+  public products: Product[];
+  public exportingData: boolean = false;
+
   private router = inject(Router);
-  displayedColumns: string[] = [
-    'sku',
-    'name',
-    'status',
-    'type',
-    'catalog_visibility',
-    'actions',
-  ];
+  displayedColumns: string[] = ['sku', 'name', 'status', 'type', 'catalog_visibility', 'actions'];
   dataSource = new MatTableDataSource<Product>([]);
 
   applyFilter(event: Event) {
@@ -47,6 +47,7 @@ export default class ProductsComponent {
         })
       )
       .subscribe((response) => {
+        this.products = response;
         console.log('Productos obtenidos:', response);
         this.dataSource.data = response;
         this.notiflixService.unblock('products-list');
@@ -85,5 +86,40 @@ export default class ProductsComponent {
     ).join('');
 
     return `${randomLetters}${randomNumbers}`;
+  }
+
+  exportData(): void {
+    this.notiflixService.block('block-export-csv', 'Exportando...');
+    this.productService.getProductsWithVariations(this.products).subscribe(async (detailedData) => {
+      const dataForExcel = await Promise.all(
+        detailedData.map(async (row) => {
+          const imageUrlBase64 = row.imageUrl ? await this.getBase64Image(row.imageUrl) : `${row.name} no tiene imagen`;
+          return {
+            ...row,
+            imageUrl: imageUrlBase64,
+          };
+        })
+      );
+
+      this.exportExcelService.exportToExcelWithImages(dataForExcel, 'stock_productos');
+      this.notiflixService.unblock('block-export-csv');
+    });
+    // this.exportingData = false;
+    // this.changeDetectorRef.detectChanges();
+  }
+
+  private async getBase64Image(imageUrl: string): Promise<string> {
+    if (imageUrl.startsWith('data:image')) {
+      return imageUrl; // Ya está en formato Base64.
+    }
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 }

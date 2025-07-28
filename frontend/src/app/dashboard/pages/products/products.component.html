@@ -1,15 +1,29 @@
 <div class="container">
   <div class="products-list">
-    <h1>Lista de Productos</h1>
-    <mat-form-field appearance="outline">
-      <mat-label app>Filtrar</mat-label>
-      <input
-        matInput
-        (keyup)="applyFilter($event)"
-        placeholder="Buscar por..."
-        #input
-      />
-    </mat-form-field>
+    <div class="btns">
+      <div>
+        <h1>Lista de Productos</h1>
+        <div class="block-export-csv">
+          @if(exportingData){
+            <button mat-flat-button disabled="">Exportando datos</button>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }@else{
+            <button mat-flat-button color="primary" class="text-white mb-4 mat-elevation-z2"   (click)="exportData()">Exportar</button>
+          }
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label app>Filtrar</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Buscar por..."
+          #input
+        />
+      </mat-form-field>
+    </div>
+
 
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
       <!-- Position Column -->

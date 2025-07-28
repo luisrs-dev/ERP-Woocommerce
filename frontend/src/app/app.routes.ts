@@ -34,6 +34,14 @@ export const routes: Routes = [
           import('./dashboard/pages/products/products.component'),
       },
       {
+        path: 'inventario',
+        title: 'Inventario',
+        data: { icon: 'inventory' },
+
+        loadComponent: () =>
+          import('./dashboard/pages/inventory/inventory.component'),
+      },
+      {
         path: 'productos',
         title: 'Finanzas',
         data: { icon: 'account_balance' },

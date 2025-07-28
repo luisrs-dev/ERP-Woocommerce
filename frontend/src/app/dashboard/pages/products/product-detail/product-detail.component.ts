@@ -14,13 +14,14 @@ import { Product } from '../../../interfaces/product.interface';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../../../angular-material/material.module';
 import { NotiflixService } from '../../../../shared/services/Notiflix.service';
+import { ProductComponent } from '../../../components/product/product.component';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
   standalone: true,
-  imports: [CommonModule, MaterialModule],
+  imports: [CommonModule, MaterialModule, ProductComponent],
 })
 export default class ProductDetailComponent implements OnInit {
   private productService = inject(ProductsService);
@@ -29,7 +30,7 @@ export default class ProductDetailComponent implements OnInit {
 
   public product$: Observable<Product | null> = this.route.paramMap.pipe(
     switchMap((params) => {
-      this.notiflixService.block('container', 'Cargando producto...');
+      this.notiflixService.block('container-product', 'Cargando producto...');
       const id = params.get('id');
       return id ? this.productService.getProductById(id) : of(null); // Obtener el producto por ID
     }),
@@ -52,7 +53,7 @@ export default class ProductDetailComponent implements OnInit {
     }),
     tap((product) => {
       console.log('Producto y variaciones:', product);
-      this.notiflixService.unblock('container');
+      this.notiflixService.unblock('container-product');
     }),
     catchError((error) => {
       console.error('Error al cargar el producto:', error);

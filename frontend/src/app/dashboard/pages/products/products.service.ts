@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, forkJoin, Observable } from 'rxjs';
+import { catchError, forkJoin, map, Observable, tap } from 'rxjs';
 import * as CryptoJS from 'crypto-js';
 import { Product } from '../../interfaces/product.interface';
 import { Variation } from '../../interfaces/variaton.interface';
@@ -19,11 +19,10 @@ export class ProductsService {
 
   getProducts(): Observable<Product[]> {
     const headers = new HttpHeaders({
-      Authorization:
-        'Basic ' + btoa(this.consumerKey + ':' + this.consumerSecret),
+      Authorization: 'Basic ' + btoa(this.consumerKey + ':' + this.consumerSecret),
     });
 
-    return this.http.get<Product[]>(this.baseUrl, {
+    return this.http.get<Product[]>(`${this.baseUrl}?page=1&per_page=100`, {
       headers,
       withCredentials: true,
     });
@@ -31,8 +30,7 @@ export class ProductsService {
 
   getProductById(id: string): Observable<Product> {
     const headers = new HttpHeaders({
-      Authorization:
-        'Basic ' + btoa(this.consumerKey + ':' + this.consumerSecret),
+      Authorization: 'Basic ' + btoa(this.consumerKey + ':' + this.consumerSecret),
     });
 
     return this.http.get<Product>(`${this.baseUrl}/${id}`, {
@@ -42,20 +40,64 @@ export class ProductsService {
   }
 
   // Método para obtener las variaciones por sus IDs
-  getVariationById(
-    productId: number,
-    variationId: number
-  ): Observable<Variation> {
+  getVariationById(productId: number, variationId: number): Observable<Variation> {
     const headers = new HttpHeaders({
-      Authorization: `Basic ${btoa(
-        `${this.consumerKey}:${this.consumerSecret}`
-      )}`,
+      Authorization: `Basic ${btoa(`${this.consumerKey}:${this.consumerSecret}`)}`,
     });
 
-    return this.http.get<Variation>(
-      `${this.baseUrl}/${productId}/variations/${variationId}`,
-      { headers, withCredentials: true }
+    return this.http.get<Variation>(`${this.baseUrl}/${productId}/variations/${variationId}`, {
+      headers,
+      withCredentials: true,
+    });
+  }
+
+  getProductsWithVariations(products: any[]): Observable<any[]> {
+    const headers = new HttpHeaders({
+      Authorization: `Basic ${btoa(`${this.consumerKey}:${this.consumerSecret}`)}`,
+    });
+
+    const productsFiltered = products.filter(
+      (product) => product.stock_status != 'outofstock' && product.catalog_visibility != 'hidden'
     );
+    return forkJoin(
+      productsFiltered.map((product) =>
+        this.http
+          .get(`${this.baseUrl}/${product.id}/variations`, {
+            headers,
+            withCredentials: true,
+          })
+          .pipe(
+            map((variations: any) =>
+              variations
+                .filter((variation: any) => variation.stock_quantity > 0)
+                .map((variation: any) => ({
+                  category: Array.isArray(product.tags) ? product.tags[0]?.name : 'Sin categoria', // Extraer nombres de los tags
+                  productBrand: Array.isArray(product.tags) ? product.tags[1]?.name : 'Genérico', // Extraer nombres de los tags
+                  productName: product.name,
+                  // productId: product.id,
+                  variationName: variation.name,
+                  // variationId: variation.id,
+                  stock: variation.stock_quantity,
+                  price: variation.sale_price || variation.regular_price, // Obtener el precio
+                  imageUrl: product?.images[0]?.src ?? 'Sin imagen',
+                }))
+            ),
+            tap((filteredVariations) => console.log('Filtered Variations:', filteredVariations)) // Log después del filtrado
+
+          )
+      )
+    ).pipe(map((results) => results.flat()));
+  }
+
+  private getProductVariations(productId: number) {
+    const headers = new HttpHeaders({
+      Authorization: 'Basic ' + btoa(this.consumerKey + ':' + this.consumerSecret),
+    });
+    const url = `${this.baseUrl}/${productId}/variations`;
+    return this.http.get<any[]>(url, {
+      headers,
+      withCredentials: true,
+    });
   }
 
   updateVariation(
@@ -69,9 +111,7 @@ export class ProductsService {
   ): Observable<any> {
     const url = `${this.baseUrl}/${productId}/variations/${variationId}`;
     const headers = new HttpHeaders({
-      Authorization: `Basic ${btoa(
-        `${this.consumerKey}:${this.consumerSecret}`
-      )}`,
+      Authorization: `Basic ${btoa(`${this.consumerKey}:${this.consumerSecret}`)}`,
     });
 
     return this.http.put(url, updateData, { headers, withCredentials: true });
