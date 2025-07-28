@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, type OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-orders',
@@ -8,4 +8,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './orders.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrdersComponent { }
+export default class OrdersComponent implements OnInit {
+
+  ngOnInit(): void { }
+
+}
